@@ -14,4 +14,7 @@ class Message(Base):
     response_sent = Column(Boolean, nullable=False)
 
     def __repr__(self):
-        return f"<Message(text_msg_extid='{self.text_msg_extid}', text_msg='{self.text_msg}', latitude='{self.latitude}', longtitude={self.longtitude}', response_sent='{self.response_sent}')>"
+        """
+        Overwrites default magic __repr__ method.
+        """
+        return f"<Message(text_msg_extid='{self.text_msg_extid}', text_msg='{self.text_msg}', latitude='{self.latitude}', longitude={self.longitude}', response_sent='{self.response_sent}')>"
