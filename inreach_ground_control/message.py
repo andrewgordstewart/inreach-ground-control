@@ -4,6 +4,29 @@ from sqlalchemy import Column, Integer, String, Float, Boolean
 Base = declarative_base()
 
 class Message(Base):
+    """
+    A stored inreach message.
+
+    Fields
+    ------
+    :id: int
+        Primary key
+
+    :text_msg_extid: str
+        A GUID identifying the received inreach message.
+
+    :text_msg: str
+        The message written by the inreach user.
+
+    :latitude: int
+        The latitudinal coordinate of the inreach user at the time the message was sent.
+
+    :longitude: int
+        The longitudinal coordinate of the inreach user at the time the message was sent.
+
+    :response_sent: bool
+        Indicates whether the inreach user has been sent a response containing the weather report.
+    """
     __tablename__ = 'messages'
 
     id = Column(Integer,            primary_key=True)
