@@ -9,8 +9,18 @@ from message import Message
 
 class Digester():
     """
-    Digests emails sent to <username> on the <host> IMAP server.
+    Digest emails sent to <username> on the <host> IMAP server.
     Unread emails _that were sent by an inreach device_ are locally persisted using the db_session.
+
+    Attributes
+    ----------
+
+    db_session: sqlalchemy.orm.sessionmaker(bind=<sqlalchemy.engine.base.Engine>)
+        A database session which contains a 'messages' table (See the message module.)
+    imap_obj: imapclient.IMAPClient
+        IMAP client connecting to the <username>'s email on the <host> IMAP server. The 'INBOX'
+        folder is selected.
+
     """
 
     def __init__(self, db_session, host, username, password=None, ssl=True, port=993):
@@ -23,8 +33,11 @@ class Digester():
 
     def check_emails(self):
         """
-        Checks for new emails. If sent from an Inreach device, persists relevant information
+        Checks for UNSEEN emails.
+        If an UNSEEN email was sent from an Inreach device, persists relevant information
         using the provided db_session
+
+        :return: True
         """
         email_ids = self.imap_obj.search("UNSEEN")
         emails = self.imap_obj.fetch(email_ids, "RFC822")
@@ -55,6 +68,10 @@ class Digester():
     def validate(message):
         """
         Validates that the message was actually sent from an Inreach device.
+
+        :message: email.message.Message
+            Message to be validated.
+        :return: True
         """
         auth_results = dict(message.items())["ARC-Authentication-Results"]
         if not 'dkim=pass header.i=@garmin.com' in auth_results:
@@ -64,7 +81,8 @@ class Digester():
 
     def parse_and_persist(self, body):
         """
-        Parses an email's body from an inreach text message.
+        Parses and persists an email's body from an inreach text message.
+
         Persists a Message object having the following properties:
 
         String  text_msg_extid
@@ -82,6 +100,9 @@ class Digester():
             View the location or send a reply to <name>: <url>
 
             <name> sent this message from: Lat <lat> Lon <lon>\n\n<some other stuff>
+
+        :body: str
+           The email body from an inreach 'text message'.
         """
 
         soup = BeautifulSoup(body, 'html.parser')
@@ -114,7 +135,7 @@ class Digester():
             response_sent=False
         )
 
-        # Because the ORM doesn't support upsert...
+        # Because SQLAlchemy Core doesn't support upsert...
         # TODO: Switch to using SQLAlchemy Core and use UPSERT to deal with the unique constraint on
         #       text_msg_extid
         self.db_session.add(message)
