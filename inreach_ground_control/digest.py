@@ -73,7 +73,7 @@ class Digester():
         String  text_msg_extid
         String  text_msg
         Float   latitude
-        Float   longtitude
+        Float   longitude
         Boolean response_sent
 
         Currently, inreach emails all share the following properties:
@@ -100,7 +100,7 @@ class Digester():
         # <user> sent this message from: Lat <lat> Lon <lon>
         coords = paragraphs.pop()
         pattern = re.compile(r'-?\d+\.\d+')
-        latitude, longtitude = pattern.findall(str(coords))
+        latitude, longitude = pattern.findall(str(coords))
 
         # View the location or send a reply to <user>: <a ... txtmsg?extid="<extid>="><url>
         reply_url_p = paragraphs.pop()
@@ -113,7 +113,7 @@ class Digester():
             text_msg_extid=text_msg_extid,
             text_msg=text_msg,
             latitude=latitude,
-            longtitude=longtitude,
+            longitude=longitude,
             response_sent=False
         )
 
