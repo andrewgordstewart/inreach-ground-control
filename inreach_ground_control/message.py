@@ -4,6 +4,13 @@ from sqlalchemy import Column, Integer, String, Float, Boolean
 
 Base = declarative_base()
 
+BOOLEAN_QUERY_KEYS = ["daily", "hourly"]
+STRING_QUERY_KEYS = ["units"]
+NUMERIC_QUERY_KEYS = ["latitude", "longitude"]
+QUERY_KEYS = BOOLEAN_QUERY_KEYS + STRING_QUERY_KEYS + NUMERIC_QUERY_KEYS
+TRUTHY_QUERY_VALUES = ["yes", "y", "true", "t"]
+FALSY_QUERY_VALUES = ["no", "n", "false", "f"]
+
 class Message(Base):
     """
     A stored inreach message.
@@ -61,9 +68,9 @@ class Message(Base):
         :return: :class: Query parameters <collections.DefaultDict> object
         :rtype: collections.DefaultDict
         """
-        opts = defaultdict(list)
+        opts = defaultdict(lambda : None)
 
-        lines = text_msg.downcase().replace('wx ', '').splitlines()
+        lines = self.text_msg.lower().replace('wx ', '').splitlines()
 
         start_time = lines[0]
         if start_time == "now":
@@ -72,11 +79,26 @@ class Message(Base):
             start_offset_days = int(start_time.replace(' days', ''))
         opts["start_offset_days"] = start_offset_days
 
-        for line in lines:
+        for line in lines[1:]:
             key, value = line.split('=')
-            opts[key] = value
+
+            if key not in QUERY_KEYS:
+                continue
+
+            if key in BOOLEAN_QUERY_KEYS:
+                opts[key] = (value in TRUTHY_QUERY_VALUES)
+            elif key in NUMERIC_QUERY_KEYS:
+                opts[key] = float(value)
+            else:
+                opts[key] = value
 
         # "latitude" and "longitude" are required parameters to a weather forecast.
         # The default values should be supplied by the inreach user's current position.
-        opts["latitude"] = opts["latitude"] or self.latitude
-        opts["longitude"] = opts["longitude"] or self.longitude
+        # Of course, defaults are _only_ overwritten when both coordinates are supplied
+
+        coordinates_specified = (opts["latitude"] and opts["longitude"])
+
+        opts["latitude"] = opts["latitude"] if coordinates_specified else self.latitude
+        opts["longitude"] = opts["longitude"] if coordinates_specified else self.longitude
+
+        return opts
