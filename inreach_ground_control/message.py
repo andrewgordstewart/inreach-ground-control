@@ -1,5 +1,6 @@
 from collections import defaultdict
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import validates
 from sqlalchemy import Column, Integer, String, Float, Boolean
 
 Base = declarative_base()
@@ -102,3 +103,8 @@ class Message(Base):
         opts["longitude"] = opts["longitude"] if coordinates_specified else self.longitude
 
         return opts
+
+    @validates('text_msg')
+    def validate_text_msg(self, key, text_msg):
+        assert text_msg[0:3] == 'wx '
+        return text_msg
