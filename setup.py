@@ -1,15 +1,16 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
+
 
 setup(
     name='InreachGroundControl',
     version='0.1.0',
-    author='Andrew Stewart',
-    author_email='andrew.gord.stewart@gmail.com',
-    packages=['inreach_ground_control', 'inreach_ground_control.test'],
-    scripts=[],
-    license='LICENSE.txt',
-    description='An app for consuming and responding to messages from an Inreach satellite messenger.',
-    long_description=open('README').read(),
+    packages=find_packages(),
+    include_package_data=True,
     install_requires=[
+        'Click',
     ],
+    entry_points='''
+        [console_scripts]
+        weather_report=inreach_ground_control.weather_report:cli
+    ''',
 )
