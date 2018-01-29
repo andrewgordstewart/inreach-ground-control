@@ -15,14 +15,10 @@ class Digester():
 
     def __init__(self, db_session, host, username, password=None, ssl=True, port=993):
         self.db_session = db_session
-        self.host = host
-        self.username = username
-        self.password = password or input("Please enter your password.")
-        self.ssl = ssl
-        self.port = port
+        password = password or input("Please enter your password.")
 
-        self.imap_obj = imapclient.IMAPClient(self.host, ssl=self.ssl, port=self.port)
-        self.imap_obj.login(self.username, self.password)
+        self.imap_obj = imapclient.IMAPClient(host, ssl=ssl, port=port)
+        self.imap_obj.login(username, password)
         self.imap_obj.select_folder('INBOX')
 
     def check_emails(self):
@@ -31,7 +27,6 @@ class Digester():
         using the provided db_session
         """
         email_ids = self.imap_obj.search("UNSEEN")
-        email_ids = self.imap_obj.search("ALL")
         emails = self.imap_obj.fetch(email_ids, "RFC822")
 
         parsed_emails = []
@@ -53,6 +48,8 @@ class Digester():
 
                 self.parse_and_persist(message)
                 self.db_session.commit()
+
+        return True
 
     @staticmethod
     def validate(message):
