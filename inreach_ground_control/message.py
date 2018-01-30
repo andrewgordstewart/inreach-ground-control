@@ -79,7 +79,7 @@ class Message(Base):
         """
         opts = defaultdict(lambda : None)
 
-        lines = self.text_msg.lower().replace('wx ', '').splitlines()
+        lines = self.text_msg.lower().replace('wx ', '').replace(', ', ',').split(',')
 
         start_time = lines[0]
         if start_time == "now":
