@@ -1,3 +1,4 @@
+import json
 from os import environ
 
 import click
@@ -8,12 +9,18 @@ from inreach_ground_control.message import Message
 from inreach_ground_control.weatherman import Weatherman
 
 @click.command()
-@click.option('--guid', help='guid of the inReach text message')
-def cli(guid):
-    click.echo(f"Sending forecast for message {guid} to Andrew!")
+def cli():
+    messages = db_session.query(Message).filter(Message.response_sent == False).all()
 
-    message = db_session.query(Message).filter(Message.text_msg_extid == guid).first()
-    query_params = message.query_params()
+    for message in messages:
+        query_params = message.query_params()
 
-    click.echo(f"Would send POST request with data {query_params}")
-    Weatherman(message).send_forecast()
+        response = Weatherman(message).send_forecast()
+
+        if response.status_code == 200 and json.loads(response.text)['Success'] is True:
+            # NB: json.loads may throw an error when the POST request was unsuccessful,
+            # since inreach.garmin.com returns an html "Error page", along with status code 200.
+            message.response_sent = True
+            db_session.commit()
+
+    db_session.remove()
