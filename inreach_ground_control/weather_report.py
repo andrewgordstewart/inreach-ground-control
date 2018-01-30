@@ -22,7 +22,7 @@ def cli():
     messages = db_session.query(Message).filter(Message.response_sent == False).all()
 
     for message in messages:
-        log('Responding to {message.text_msg_extid} @ {message.latitude}, {message.longitude}')
+        log(f'Responding to {message.text_msg_extid} @ {message.latitude}, {message.longitude}')
 
         query_params = message.query_params()
 
