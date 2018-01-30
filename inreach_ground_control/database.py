@@ -1,7 +1,9 @@
+from os import environ
+
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-engine = create_engine('postgresql://andrewstewart:inreach-dev@localhost/inreach-dev')
+engine = create_engine(environ["INREACH_DATABASE_URI"])
 metadata = MetaData()
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
