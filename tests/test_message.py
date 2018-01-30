@@ -8,7 +8,7 @@ from inreach_ground_control.message import Message
 DEFAULT_LATITUDE = 42
 DEFAULT_LONGITUDE = 45
 
-def message_factory(text_msg="wx +2 days\ndaily=YES\nhourly=n\nunits=aUto\ninclude_emoji=True"):
+def message_factory(text_msg="wx +2 days, daily=YES, hourly=n, units=aUto, include_emoji=True"):
     return Message(
         text_msg_extid="id-number-1",
         text_msg=text_msg,
@@ -35,24 +35,24 @@ def test_first_line_requirements(message):
         )
 
 @pytest.mark.parametrize("text_msg,latitude,longitude", [
-    ("wx +2 days\nlatitude=3.1415\nlongitude=55", 3.1415, 55),
-    ("wx +2 days\nlatitude=-43.2\nlongitude=55", -43.2, 55),
-    ("wx +2 days\nlatitude=-5", DEFAULT_LATITUDE, DEFAULT_LONGITUDE),
-    ("wx +2 days\nlongitude=-5", DEFAULT_LATITUDE, DEFAULT_LONGITUDE),
-    ("wx +2 days\ndaily=FALSE", DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
+    ("wx +2 days, lat=3.1415, lon=55", 3.1415, 55),
+    ("wx +2 days, lat=-43.2, lon=55", -43.2,  55),
+    ("wx +2 days, lat=-5",      DEFAULT_LATITUDE, DEFAULT_LONGITUDE),
+    ("wx +2 days, lon=-5",      DEFAULT_LATITUDE, DEFAULT_LONGITUDE),
+    ("wx +2 days, daily=FALSE", DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
 ])
 
 def test_coordinates(message, text_msg, latitude, longitude):
     message.text_msg = text_msg
     opts = message.query_params()
 
-    assert opts["latitude"] == latitude
-    assert opts["longitude"] == longitude
+    assert opts["lat"] == latitude
+    assert opts["lon"] == longitude
 
 @pytest.mark.parametrize("text_msg,start_offset_days", [
-    ("wx +2 days\ndaily=YES", 2),
-    ("wx -1 days\ndaily=YES", -1),
-    ("wx now\ndaily=YES", 0)
+    ("wx +2 days, daily=YES", 2),
+    ("wx -1 days, daily=YES", -1),
+    ("wx now, daily=YES", 0)
 ])
 
 def test_start_offset_days(message, text_msg, start_offset_days):
@@ -62,9 +62,9 @@ def test_start_offset_days(message, text_msg, start_offset_days):
     assert opts["start_offset_days"] == start_offset_days
 
 @pytest.mark.parametrize("text_msg,daily,hourly", [
-    ("wx +2 days\ndaily=YES\nhourly=n", True, False),
-    ("wx -1 days\ndaily=true\nhourly=f", True, False),
-    ("wx now\ndaily=t", True, None)
+    ("wx +2 days, daily=YES, hourly=n", True, False),
+    ("wx -1 days, daily=true, hourly=f", True, False),
+    ("wx now, daily=t", True, None)
 ])
 def test_boolean_options(message, text_msg, daily, hourly):
     message.text_msg = text_msg
@@ -74,8 +74,8 @@ def test_boolean_options(message, text_msg, daily, hourly):
     assert opts["hourly"] is hourly
 
 @pytest.mark.parametrize("text_msg,units", [
-    ("wx +2 days\nunits=auto", "auto"),
-    ("wx +2 days\nunits=aUto", "auto")
+    ("wx +2 days, units=auto", "auto"),
+    ("wx +2 days, units=aUto", "auto")
 ])
 def test_units(message, text_msg, units):
     # opts["units"] should be lowercased
