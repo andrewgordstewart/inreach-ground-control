@@ -18,22 +18,22 @@ class Message(Base):
 
     Fields
     ------
-    :id: int
+    :param id: int
         Primary key
 
-    :text_msg_extid: str
+    :param text_msg_extid: str
         A GUID identifying the received inreach message.
 
-    :text_msg: str
+    :param text_msg: str
         The message written by the inreach user.
 
-    :latitude: int
+    :param latitude: int
         The latitudinal coordinate of the inreach user at the time the message was sent.
 
-    :longitude: int
+    :param longitude: int
         The longitudinal coordinate of the inreach user at the time the message was sent.
 
-    :response_sent: bool
+    :param response_sent: bool
         Indicates whether the inreach user has been sent a response containing the weather report.
     """
     __tablename__ = 'messages'
@@ -42,7 +42,7 @@ class Message(Base):
     text_msg_extid = Column(String, nullable=False, unique=True)
     text_msg = Column(String,       nullable=False)
     latitude = Column(Float,        nullable=False)
-    longitude = Column(Float,      nullable=False)
+    longitude = Column(Float,       nullable=False)
     response_sent = Column(Boolean, nullable=False)
 
     def __repr__(self):
