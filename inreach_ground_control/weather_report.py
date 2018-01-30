@@ -40,7 +40,10 @@ def report_weather():
 def log(statement):
     filename = f'{path.expanduser("~")}/logs/weather_report.log'
     with open(filename, 'a+') as f:
-        f.write(f'{datetime.now()} -- {statement}\n')
+        log_statement = f'{datetime.now()} -- {statement}\n'
+
+        f.write(log_statement)
+        print(log_statement)
 
     return True
 
