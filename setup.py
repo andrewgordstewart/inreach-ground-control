@@ -13,6 +13,8 @@ setup(
     install_requires=[
         'bs4',
         'click',
+        'datetime',
+        'imapclient',
         'forecastiopy',
         'psycopg2',
         'pytest',
