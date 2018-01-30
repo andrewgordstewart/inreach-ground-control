@@ -73,6 +73,4 @@ class Forecast(ForecastIO.ForecastIO):
 if __name__ == "__main__":
     latitude = -49.291532
     longitude = -73.061839
-    import IPython
-    IPython.embed()
     niponino = Forecast(API_KEY, latitude=latitude, longitude=longitude)
