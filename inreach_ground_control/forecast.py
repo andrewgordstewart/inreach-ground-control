@@ -31,11 +31,11 @@ class Forecast(ForecastIO.ForecastIO):
             "pci:{int(current_forecast.precipIntensity)}"
         )
 
-    def daily_report(self, days=3):
+    def daily_report(self, days=3, start_offset_days=0):
         daily_forecast = self.daily_forecast
         def get_series(df, key):
             shorten = lambda s: str(int(s))
-            return ",".join(shorten(d[key]) for d in df.data[:days])
+            return ",".join(shorten(d[key]) for d in df.data[start_offset_days:start_offset_days + days])
 
         wind_speed = zip(
             get_series(daily_forecast, "windSpeed").split(','),
@@ -45,6 +45,7 @@ class Forecast(ForecastIO.ForecastIO):
 
         report = (
             """
+                start:+{start_offset_days} days
                 hPa:{pressure}
                 wnd:{windSpeed}
                 wbr:{windBearing}
@@ -53,6 +54,7 @@ class Forecast(ForecastIO.ForecastIO):
                 pci:{precipIntensity}
                 pc%:{precipProbability}
             """.format(**{
+                "start_offset_days": start_offset_days,
                 "pressure":          get_series(daily_forecast, "pressure"),
                 "windSpeed":         wind_speed,
                 "windBearing":       get_series(daily_forecast, "windBearing"),
