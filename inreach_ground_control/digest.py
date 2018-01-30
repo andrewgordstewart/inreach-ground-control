@@ -33,20 +33,20 @@ class Digester():
         self.imap_obj.login(username, password)
         self.imap_obj.select_folder('INBOX')
 
-    def check_emails(self):
+    def check_emails(self, search='UNSEEN'):
         """
-        Checks for UNSEEN emails.
-        If an UNSEEN email was sent from an Inreach device, persists relevant information
+        Checks for emails in the INBOX matching search term.
+        If a matching email was sent from an Inreach device, persists relevant information
         using the provided db_session
 
         :return: True
         """
-        email_ids = self.imap_obj.search("UNSEEN")
+        email_ids = self.imap_obj.search(search)
         emails = self.imap_obj.fetch(email_ids, "RFC822")
 
         parsed_emails = []
 
-        for _, each_email in emails.items():
+        for email_id, each_email in emails.items():
             message = email.message_from_bytes(each_email[b"RFC822"])
 
             try:
@@ -168,4 +168,4 @@ if __name__ == "__main__":
     session = Session()
 
     d = Digester(session, 'imap.gmail.com', 'inreach.ground.control', password='%MsUZV6RT3PvQGZXUx8')
-    d.check_emails()
+    d.check_emails(search='UNSEEN')
