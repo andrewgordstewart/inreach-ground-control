@@ -1,23 +1,22 @@
-from inreach_ground_control.forecast import Forecast
 from os import environ
 import requests
 
-###
-# For the moment, these will be stored as environment variables.
-# They should instead be read from the email sent to REPLY_ADDRESS
-# TODO: Fix this
-MESSAGE_ID    = environ["MESSAGE_ID"]
-###
+from inreach_ground_control.forecast import Forecast
 
-REPLY_URL     = "https://inreach.garmin.com/TextMessage/TxtMsg"
+REPLY_URL = "https://inreach.garmin.com/TextMessage/TxtMsg"
+API_KEY = environ["DARK_SKY_API_KEY"]
 
 class Weatherman():
-    def __init__(self, forecast, message):
-        weather_report = ''.join(forecast.daily_report().split())
+    def __init__(self, message):
+        query_params = message.query_params()
+        self.forecast = Forecast(API_KEY, latitude=query_params['lat'], longitude=query_params['lon'])
+
+        report = self.forecast.daily_report(days=query_params['days'] or 3)
+        reply_message = ''.join(report.split())
         self.data = {
             "ReplyAddress": message.address,
             "ReplyMessage": weather_report,
-            "MessageId": MESSAGE_ID,
+            "MessageId": message.text_msg_id,
             "Guid": message.text_msg_extid
         }
 
