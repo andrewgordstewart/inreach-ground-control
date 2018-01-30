@@ -58,11 +58,15 @@ class Digester():
                 GMail responds with multi-part messages. We're using BeautifulSoup to parse
                 the message, so we select the text/html version.
                 """
-                message = next(m for m in message.get_payload() if m.get_content_type() == 'text/html')
-                message = message.get_payload()
 
-                self.parse_and_persist(message)
-                self.db_session.commit()
+                address = message.get('To')
+                html_message = next(m for m in message.get_payload() if m.get_content_type() == 'text/html')
+                body = html_message.get_payload(decode=True)
+
+                try:
+                    self.parse_and_persist(body, address)
+                except:
+                    self.imap_obj.set_flags([email_id], 'UNSEEN')
 
         return True
 
@@ -81,17 +85,9 @@ class Digester():
 
         pass
 
-    def parse_and_persist(self, body):
+    def parse_and_persist(self, body, address):
         """
-        Parses and persists an email's body from an inreach text message.
-
-        Persists a Message object having the following properties:
-
-        String  text_msg_extid
-        String  text_msg
-        Float   latitude
-        Float   longitude
-        Boolean response_sent
+        Parses and persists an email's body from an inreach text message as a Message.
 
         Currently, inreach emails all share the following properties:
         subject: inReach message from Andrew Stewart
@@ -103,8 +99,11 @@ class Digester():
 
             <name> sent this message from: Lat <lat> Lon <lon>\n\n<some other stuff>
 
-        :body: str
+        :param body: str
            The email body from an inreach 'text message'.
+
+        :param address: str
+           The recipient email address of the inreach message.
         """
 
         soup = BeautifulSoup(body, 'html.parser')
@@ -117,20 +116,34 @@ class Digester():
         # "Do not reply directly to this message."
         paragraphs.pop() # (discard)
 
-        # <user> sent this message from: Lat <lat> Lon <lon>
-        coords = paragraphs.pop()
-        pattern = re.compile(r'-?\d+\.\d+')
-        latitude, longitude = pattern.findall(str(coords))
+        # <user> sent this message from: Lat [lat] Lon [lon]
+        coords_p = paragraphs.pop()
+        # If the GPS signal is small, the coordinates may be 0, 0.
+        # Otherwise, they would almost surely have some decimal precision.
+        pattern = re.compile(r'-?\d+\.?\d*')
+        latitude, longitude = pattern.findall(str(coords_p))
 
-        # View the location or send a reply to <user>: <a ... txtmsg?extid="<extid>="><url>
+        # View the location or send a reply to [user]: <a 'href'=[url]><url></a>
         reply_url_p = paragraphs.pop()
-        # Slice to drop the extraneous '='
-        text_msg_extid = reply_url_p.find('a')['txtmsg?extid'][:-1]
+        reply_url = reply_url_p.find('a').attrs['href']
 
+        query_string = urllib_parse.urlparse(reply_url).query
+        text_msg_extid = urllib_parse.parse_qs(query_string)['extId'][0]
+
+        reply_html = requests.get(reply_url).content
+        reply_soup = BeautifulSoup(reply_html, 'html.parser')
+
+        text_msg_id = int(reply_soup.find('input', attrs={'id': 'MessageId'}).attrs['value'])
+
+        # The remainder of the paragraph tags are from the message.
+        # Note that preset messages don't allow newlines, meaning there should only be one
+        # remaining paragraph tag.
         text_msg = '\n'.join([str(p.get_text(strip=True)) for p in paragraphs])
 
         message = Message(
+            address=address,
             text_msg_extid=text_msg_extid,
+            text_msg_id=text_msg_id,
             text_msg=text_msg,
             latitude=latitude,
             longitude=longitude,
@@ -147,6 +160,7 @@ class Digester():
         except:
             # TODO: Only except the correct error. (psycopg2.IntegrityError?)
             # TODO: Log something here.
+            self.db_session.rollback()
             pass
 
 class InvalidEmailError(Exception):
