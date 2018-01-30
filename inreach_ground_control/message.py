@@ -27,6 +27,9 @@ class Message(Base):
     :param text_msg_extid: str
         A GUID identifying the received inreach message.
 
+    :param text_msg_id: int
+        An integer id identifying the received inreach message.
+
     :param text_msg: str
         The message written by the inreach user.
 
@@ -44,6 +47,7 @@ class Message(Base):
     id = Column(Integer,            primary_key=True)
     address = Column(String,        nullable=False)
     text_msg_extid = Column(String, nullable=False, unique=True)
+    text_msg_id = Column(Integer,   nullable=False)
     text_msg = Column(String,       nullable=False)
     latitude = Column(Float,        nullable=False)
     longitude = Column(Float,       nullable=False)
@@ -53,7 +57,7 @@ class Message(Base):
         """
         Overwrites default magic __repr__ method.
         """
-        return f"<Message(address='{self.address}', text_msg_extid='{self.text_msg_extid}', text_msg='{self.text_msg}', latitude='{self.latitude}', longitude={self.longitude}', response_sent='{self.response_sent}')>"
+        return f"<Message(address='{self.address}', text_msg_extid='{self.text_msg_extid}', text_msg_id='{self.text_msg_id}', text_msg='{self.text_msg}', latitude='{self.latitude}', longitude={self.longitude}', response_sent='{self.response_sent}')>"
 
     def query_params(self):
         """
