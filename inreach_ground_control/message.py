@@ -7,7 +7,7 @@ Base = declarative_base()
 
 BOOLEAN_QUERY_KEYS = ["daily", "hourly"]
 STRING_QUERY_KEYS = ["units"]
-NUMERIC_QUERY_KEYS = ["latitude", "longitude"]
+NUMERIC_QUERY_KEYS = ["lat", "lon"]
 QUERY_KEYS = BOOLEAN_QUERY_KEYS + STRING_QUERY_KEYS + NUMERIC_QUERY_KEYS
 TRUTHY_QUERY_VALUES = ["yes", "y", "true", "t"]
 FALSY_QUERY_VALUES = ["no", "n", "false", "f"]
@@ -97,10 +97,10 @@ class Message(Base):
         # The default values should be supplied by the inreach user's current position.
         # Of course, defaults are _only_ overwritten when both coordinates are supplied
 
-        coordinates_specified = (opts["latitude"] and opts["longitude"])
+        coordinates_specified = (opts["lat"] and opts["lon"])
 
-        opts["latitude"] = opts["latitude"] if coordinates_specified else self.latitude
-        opts["longitude"] = opts["longitude"] if coordinates_specified else self.longitude
+        opts["lat"] = opts["lat"] if coordinates_specified else self.latitude
+        opts["lon"] = opts["lon"] if coordinates_specified else self.longitude
 
         return opts
 
