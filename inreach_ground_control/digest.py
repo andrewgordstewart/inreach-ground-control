@@ -5,8 +5,6 @@ from urllib import parse as urllib_parse
 
 from bs4 import BeautifulSoup
 import imapclient
-from psycopg2 import IntegrityError
-
 from message import Message
 
 class Digester():
