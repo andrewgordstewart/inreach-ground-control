@@ -2,19 +2,18 @@ from os import environ
 
 import click
 
-from IPython import embed
-
+from inreach_ground_control.database import db_session
 from inreach_ground_control.forecast import Forecast
+from inreach_ground_control.message import Message
 from inreach_ground_control.weatherman import Weatherman
 
-API_KEY = environ["DARK_SKY_API_KEY"]
-
 @click.command()
-@click.option('--latitude', help='degrees latitude in decimal form')
-@click.option('--longitude', help='degrees longitude in decimal form')
-def cli(latitude, longitude):
-    click.echo(f"Sending forecast for {latitude}, {longitude} to Andrew!")
+@click.option('--guid', help='guid of the inReach text message')
+def cli(guid):
+    click.echo(f"Sending forecast for message {guid} to Andrew!")
 
-    forecast = Forecast(API_KEY, latitude=latitude, longitude=longitude)
+    message = db_session.query(Message).filter(Message.text_msg_extid == guid).first()
+    query_params = message.query_params()
 
-    click.echo(f"Would send PUT request to {Weatherman(forecast).put_url()}")
+    click.echo(f"Would send POST request with data {query_params}")
+    Weatherman(message).send_forecast()
