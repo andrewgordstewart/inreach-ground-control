@@ -1,5 +1,7 @@
-import re
 import email
+import re
+import requests
+from urllib import parse as urllib_parse
 
 from bs4 import BeautifulSoup
 import imapclient
