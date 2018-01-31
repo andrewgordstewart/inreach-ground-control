@@ -161,12 +161,11 @@ class Digester():
             self.db_session.rollback()
             pass
 
-class InvalidEmailError(Exception):
+class NotFromGarminError(Exception):
     """
     Indicates that an email is believed not to be sent from an Inreach device.
     """
-    def __init__(self, message):
-        self.message = message
+    pass
 
 if __name__ == "__main__":
     """
