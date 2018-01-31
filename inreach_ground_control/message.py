@@ -1,4 +1,6 @@
 from collections import defaultdict
+import re
+
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import validates
 from sqlalchemy import Column, Integer, String, Float, Boolean
@@ -66,26 +68,28 @@ class Message(Base):
         text_msg is expected to be of the following form
 
         '''
-        wx <start_time>
-        <opt1>=<val1>
-        <opt2>=<val2>
-        <etc>
+        wx <start_time>, <opt1>=<val1>, <opt2>=<val2>, ...
         '''
 
         This method is case insensitive -- text_msg is downcased before being parsed.
+        Whitespace is ignored.
 
         :return: :class: Query parameters <collections.DefaultDict> object
         :rtype: collections.DefaultDict
         """
         opts = defaultdict(lambda : None)
 
-        lines = self.text_msg.lower().replace('wx ', '').replace(', ', ',').split(',')
+        if self.text_msg[0:2] != 'wx':
+            raise InvalidTextMessageError
 
-        start_time = lines[0]
+        pattern = re.compile(r'\s+')
+        lines = re.sub(pattern, '', self.text_msg.lower()).split(',')
+
+        start_time = lines[0].replace('wx','')
         if start_time == "now":
             start_offset_days = 0
         else:
-            start_offset_days = int(start_time.replace(' days', ''))
+            start_offset_days = int(start_time.replace('days', ''))
         opts["start_offset_days"] = start_offset_days
 
         for line in lines[1:]:
@@ -116,3 +120,6 @@ class Message(Base):
     def validate_text_msg(self, key, text_msg):
         assert text_msg[0:3] == 'wx '
         return text_msg
+
+class InvalidTextMessageError(Exception):
+    pass
