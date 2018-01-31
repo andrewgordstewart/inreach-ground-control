@@ -171,12 +171,9 @@ if __name__ == "__main__":
     """
     Since I can't be bothered to mock an IMAP server to run tests, here's some live "testing".
     """
-    from sqlalchemy import create_engine
-    from sqlalchemy.orm import sessionmaker
 
-    engine = create_engine('postgresql://andrewstewart:inreach-dev@localhost/inreach-dev')
-    Session = sessionmaker(bind=engine)
-    session = Session()
+    from database import db_session
+    session = db_session()
 
     d = Digester(session, 'imap.gmail.com', 'inreach.ground.control', password='%MsUZV6RT3PvQGZXUx8')
     d.check_emails(search='UNSEEN')
