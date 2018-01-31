@@ -1,7 +1,7 @@
 ## inreach-ground-control
 An app for reading and responding to messages from an inReach satellite messenger.
 
-Heavily inspired by [https://wx2inreach.weebly.com/](wx2inreach), which, while
+Heavily inspired by [wx2inreach](https://wx2inreach.weebly.com/), which, while
 excellent, does not include raw meterological information -- notably, wind speed
 and atmospheric pressure -- that can be crucial pieces of information when
 planning in the field.
@@ -9,7 +9,7 @@ planning in the field.
 ## Disclaimer
 
 This service was developed almost entirely as a learning exercise.
-The bare minimum functionality has been implemented to be able to tell me
+Currently,  bare minimum functionality has been implemented to be able to tell me
 how windy it may be in the mountains in Patagonia.
 
 If you would like to test this in the field, please contact me and I will
@@ -22,7 +22,7 @@ or will provide an accurate forecast.
 respond to requests for weather forecasts _only for messages that were sent
 from an inReach device_.
 
-Forecasts are generously provided by the [https://darksky.net/dev/docs](Dark Sky)
+Forecasts are generously provided by the [Dark Sky](https://darksky.net/dev/docs)
 API.
 
 Every request for a message must begin with `wx <start_time>`, where `start_time`
@@ -52,7 +52,7 @@ wx <time>,
 lat=<decimal latitude coordinate>,
 lon=<decimal longitude coordinate>,
 days=<integer between 1 and 10>,
-units=<auto,ca,uk2,us,si>,
+units=<auto,ca,uk2,us,si>
 ```
 
 ### Example responses
