@@ -28,7 +28,7 @@ API.
 Every request for a message must begin with `wx <start_time>`, where `start_time`
 is either `now` or `+n days`.
 
-The simplest message that will be answered is, as with wx2inreach, 'wx now'.
+The simplest message that will be answered is, as with wx2inreach, `wx now`.
 The service will respond with a "daily" weather report for your current location
 (inferred by the inReach message) for today and the following two days.
 
@@ -40,9 +40,8 @@ This may be overwritten by setting the `units` parameter.
 - All whitespace (spaces and new lines) are ignored -- all options may be specified
   on one line, as long as they are separated by commas.
 - Options not listed below are currently ignored -- you may set `loc=My House`,
-  for instance, to identify a location.
-- Both lat and lon must be present -- otherwise, they will be ignored, and the
-  user's location is used.
+  for instance, to serve as a reminder in your preset messages.
+- If either `lat` and `lon` are missing, by default the user's location is used.
 - See https://darksky.net/dev/docs for details about the units option.
 
 
